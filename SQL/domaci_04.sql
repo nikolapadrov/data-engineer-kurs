@@ -43,7 +43,7 @@ ORDER BY m.kickoff_ts, m.match_id;
 
 ------------------------------------------------------------------------------
 
--- 4. zadatak
+-- 4. Zadatak
 
 SELECT
     DATE(m.kickoff_ts) AS match_date,
@@ -90,5 +90,57 @@ WHERE m.season = '2024/25'
   AND e.event_type IN ('yellow_card', 'second_yellow')
 GROUP BY t.team_id, t.team_name
 ORDER BY yellow_cards DESC, t.team_name;
+
+------------------------------------------------------------------------------
+
+-- 7. Zadatak
+
+SELECT
+  p.first_name,
+  p.last_name,
+  count(me.related_player_id) as goals_assists
+FROM players p
+ JOIN match_events me ON p.player_id = me.related_player_id
+ JOIN matches m ON me.match_id = m.match_id
+WHERE me.related_player_id IS NOT NULL
+  AND me.event_type = 'goal'
+  AND m.season = '2024/25'
+GROUP BY p.first_name, p.last_name
+ORDER BY goals_assists DESC
+LIMIT 5;
+
+------------------------------------------------------------------------------
+
+-- 8. Zadatak
+
+SELECT
+  p.first_name,
+  p.last_name,
+  t.team_name,
+  sum(pms.minutes_played) as total_minutes
+FROM player_match_stats as pms
+ JOIN players p ON pms.player_id = p.player_id
+ JOIN teams t ON pms.team_id = t.team_id
+ JOIN matches m ON pms.match_id = m.match_id
+WHERE m.season = '2024/25'
+GROUP BY p.first_name, p.last_name, t.team_name
+ORDER BY total_minutes DESC
+LIMIT 3;
+
+------------------------------------------------------------------------------
+
+-- 9. Zadatak
+
+SELECT
+    m.season,
+    t.team_name,
+    count(me.event_type) as total_exclusion
+FROM matches m
+ JOIN match_events me ON m.match_id = me.match_id
+ JOIN teams t ON me.team_id = t.team_id
+WHERE me.event_type IN ('red_card', 'second_yellow')
+GROUP BY m.season, t.team_name
+HAVING total_exclusion >= 1
+ORDER BY total_exclusion DESC;
 
 ------------------------------------------------------------------------------
