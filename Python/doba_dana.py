@@ -1,4 +1,4 @@
-clock = 2
+clock = 0
 if clock > 23:
     print('None')
 elif clock >= 6 and clock < 12:
